@@ -24,15 +24,17 @@ class AugRBBST {
         struct node *left, *right, *parent;
     };
 
-    node *root; //tree with n nodes
-    node null;
+    struct node *root; //tree with n nodes
+    struct node null;
     struct node *nullp = &null;
 
     //removes the tree from memory
     //input: root of tree
     //O(n) complexity
-    void deleteTree(node* t) {
-        if (t == NULL) return;
+    inline void deleteTree(node *t) {
+        if (t == nullp) {
+            return;
+        }
         deleteTree(t -> left);
         deleteTree(t -> right);
         delete t;
@@ -41,17 +43,24 @@ class AugRBBST {
     //prints the elements of the tree in-order.
     //input: root of tree
     //O(n) complexity
-    void inorder(node *t) {
+    inline void inorder(node *t) {
         if (t == nullp) return;
         inorder(t -> left);
         cout << (t -> data) << " ";
         inorder(t -> right);
     }
 
+    inline void preorder(node *t) {
+        if (t == nullp) return;
+        cout << (t -> data) << " ";
+        preorder(t -> left);
+        preorder(t -> right);
+    }
+
     //returns NULL if not found, or the node that contains the key if found
     //input: root of tree
     //O(logn) complexity
-    node* search(node *t, int x) {
+    inline node* search(node *t, int x) {
         if (t == nullp || t -> data == x) return t;
         if (x < t -> data) return search(t -> left, x);
         return search(t -> right, x);
@@ -60,7 +69,7 @@ class AugRBBST {
     //returns the node containing the minimum element. can be solved with kthsmallest
     //input: root of tree
     //O(logn) complexity
-    node* minimum(node *t) {
+    inline node* minimum(node *t) {
         while (t -> left != nullp) t = t -> left;
         return t;
     }
@@ -68,7 +77,7 @@ class AugRBBST {
     //returns the node containing the maximum element. can be solved with kthsmallest
     //input: root of tree
     //O(logn) complexity
-    node* maximum(node *t) {
+    inline node* maximum(node *t) {
         while (t -> right != nullp) t = t -> right;
         return t;
     }
@@ -76,7 +85,7 @@ class AugRBBST {
     //returns the node containing the next smallest element in the tree
     //input: node containing an element
     //O(logn) complexity
-    node* nextsmallest(node *t) {
+    inline node* nextsmallest(node *t) {
         if (t -> right != nullp) return nextsmallest(t -> right);
         node* y = t -> parent;
         while (y != nullp && t == y -> right) {
@@ -87,7 +96,7 @@ class AugRBBST {
     }
 
     //helper function for insertion and deletion
-    void leftrotation(node *x) {
+    inline void leftrotation(node *x) {
         node *y = x -> right;
         x -> right = y -> left;
         if (y -> left != nullp) y -> left -> parent = x;
@@ -102,22 +111,22 @@ class AugRBBST {
     }
 
     //helper function for insertion and deletion
-    void rightrotation(node *x) {
-        node *y = x -> left;
-        x -> left = y -> right;
-        if (y -> right != nullp) y -> right -> parent = x;
-        y -> parent = x -> parent;
-        if (x -> parent == nullp) root = y;
-        else if (x == x -> parent -> right) x -> parent -> right = y;
-        else x -> parent -> left = y;
-        y -> right = x;
-        x -> parent = y;
-        y -> size = x -> size;
-        x -> size = x -> left -> size + x -> right -> size + 1;
+    inline void rightrotation(node *y) {
+        node *x = y -> left;
+        y -> left = x -> right;
+        if (x -> right != nullp) x -> right -> parent = y;
+        x -> parent = y -> parent;
+        if (y -> parent == nullp) root = x;
+        else if (y == y -> parent -> left) y -> parent -> left = x;
+        else y -> parent -> right = x;
+        x -> right = y;
+        y -> parent = x;
+        x -> size = y -> size;
+        y -> size = y -> left -> size + y -> right -> size + 1;
     }
 
     //helper function for insertion
-    void insertfix(node *z) {
+    inline void insertfix(node *z) {
         node *y;
         while (z -> parent -> color == RED) {
             if (z -> parent == z -> parent -> parent -> left) {
@@ -163,7 +172,7 @@ class AugRBBST {
     //inserts a node in the tree. size is modified accordingly
     //input: the element to be inserted
     //O(logn) complexity
-    void insertion(int k) {
+    inline void insertion(int k) {
         node *x = root, *y = nullp, *z = (node*)malloc(sizeof(struct node));
         z -> data = k;
         z -> size = 1;
@@ -190,19 +199,21 @@ class AugRBBST {
         z -> left = nullp;
         z -> right = nullp;
         z -> color = RED;
+        z -> size = 1;
         insertfix(z);
     }
 
     //helper function for deletion
-    void transplant(node *u, node *v) {
+    inline void transplant(node *u, node *v) {
         if (u -> parent == nullp) root = v;
         else if (u == u -> parent -> left) u -> parent -> left = v;
         else u -> parent -> right = v;
         v -> parent = u -> parent;
+        //cout << "data is " << root->data << endl;
     }
 
     //helper function for deletion
-    void deletionfix(node *x) {
+    inline void deletionfix(node *x) {
         node *w;
         while (x != root && x -> color == BLACK) {
             if (x == x -> parent -> left) {
@@ -257,16 +268,16 @@ class AugRBBST {
                     x = root;
                 }
             }
-            x -> color = BLACK;
         }
+        x -> color = BLACK;
     }
 
     //deletes a node from the tree and rearranges the tree
     //input: the node to be deleted
     //O(logn) complexity
-    void deletion(node *z) {
+    inline void deletion(node *z) {
         node *y = z, *x, *tm;
-        if (z == NULL) return;
+        if (z == nullp) return;
         if (z != root) {
             tm = z -> parent;
             while (tm != root) {
@@ -312,7 +323,7 @@ class AugRBBST {
     //returns the node including the k-th smallest element in the tree.
     //input: the number i
     //O(logn) complexity
-    node* kthsmallest(node *t, int k) {
+    inline node* kthsmallest(node *t, int k) {
         if (k > t -> size || k <= 0) return nullp;
         int r = t -> left -> size + 1;
         if (k == r) return t;
@@ -323,13 +334,16 @@ class AugRBBST {
     //returns the rank of the given node, in the increasing order of the elements of the tree.
     //input: the given node
     //O(logn) complexity
-    int ranki(node *t) {
-        if (t == nullp) return -1;
-        int r = t -> left -> size + 1;
-        node *y = t;
-        while (y != root) {
-            if (y == y -> parent -> right) r = r + y -> parent -> left -> size + 1;
-            y = y -> parent;
+    inline int ranki(node *t) {
+        int r = 0;
+        node *y = root;
+        while (y != nullp) {
+            if (y -> data > t -> data) y = y -> left;
+            else if (y -> data < t -> data) {
+                r += y -> left -> size + 1;
+                y = y -> right;
+            }
+            else return r + y -> left -> size;
         }
         return r;
     }
@@ -342,43 +356,52 @@ public:
         root = nullp;
     }
 
-    bool exists(int x) {
+    inline void clear() {
+        deleteTree(root);
+    }
+
+    inline bool exists(int x) {
         node *X = search(root, x);
         if (X == nullp) return false;
         return true;
     }
 
-    int minno() {
+    inline int minno() {
         return minimum(root) -> data;
     }
 
-    int maxno() {
+    inline int maxno() {
         return maximum(root) -> data;
     }
 
-    void insert(int x) {
+    inline void insert(int x) {
         insertion(x);
     }
 
-    bool remove(int x) {
+    inline bool remove(int x) {
         node* X = search(root, x);
         if (X == NULL || X == nullp) return false;
         deletion(X);
         return true;
     }
 
-    void display() {
+    inline void display() {
         inorder(root);
         cout << endl;
     }
 
-    int kth(int k) {
+    inline void displaypre() {
+        preorder(root);
+        cout << endl;
+    }
+
+    inline int kth(int k) {
         node* X = kthsmallest(root, k);
         if (X == nullp) return -1;
         return kthsmallest(root, k) -> data;
     }
 
-    int rank(int k) {
+    inline int rank(int k) {
         node *x = search(root, k);
         return ranki(x);
     }
